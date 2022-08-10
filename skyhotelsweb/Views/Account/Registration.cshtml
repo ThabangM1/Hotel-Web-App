@@ -1,0 +1,156 @@
+﻿
+@{
+    ViewBag.Title = "Register";
+    TempData.Keep();
+}
+<div class=" container">
+    <div class=" page-header">
+        <h2>Register</h2>
+    </div>
+    <div class=" row" style="width:60%;margin:auto">
+        <div class="col" style="width:60%;margin-left:14%;text-align:left">
+            <form>
+                <div class="form-group">
+                    <label for="edtfname">First Name</label>
+                    <input type="text" class="form-control" id="edtfname" placeholder="First Name">
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtlname">Last Name</label>
+                    <input type="text" class="form-control" id="edtlname" placeholder="Last Name">
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtemail">Email address</label>
+                    <input type="email" class="form-control" id="edtemail" placeholder="emailaddress@example.com">
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtphonenum">Phone Number</label>
+                    <input type="number" class="form-control" id="edtphonenum" placeholder="+27">
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtAdress">Physical Address</label>
+                    <textarea class="form-control" id="edtaddress" rows="3"></textarea>
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtstaffid">Stadd ID</label>
+                    <input type="text" class="form-control" id="edtstaffid" placeholder="staff identifier">
+                </div>
+                <br />
+                <div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdAll">
+                            Owner
+                            @if (TempData["accesslevel"].ToString() == "owner")
+                            {
+                                <input class="form-check-input" type="radio" name="access" id="cbowner" value="optionAll">
+                            }
+                            else
+                            {
+                                <input class="form-check-input" type="radio" name="access" id="cbowner" value="optionAll" disabled>
+
+                            }
+
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdAll">
+                            Manager
+                            <input class="form-check-input" type="radio" name="access" id="cbmanager" value="optionAll">
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdAll">
+                            Clerk
+                            <input class="form-check-input" type="radio" name="access" id="cbclerk" value="optionAll">
+                        </label>
+                    </div>
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtstaffid">Password</label>
+                    <input type="password" class="form-control" id="edtpass" placeholder="staff identifier">
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="edtconpass">Confirm Password</label>
+                    <input type="password" class="form-control" id="edtconpass" placeholder="staff identifier">
+                </div>
+                <br />
+                <div style="text-align:center">
+                    <input class="btn btn-success" value="submit registration" onclick="registerStaff()" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/sha256.min.js"></script>
+<script src="~/Scripts/sha256.min.js"></script>
+<script type="text/javascript">
+    var accesslevel = "";
+    function validate() {
+        var mailformat = /^\w+([\.-]?\w+)*@@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        var txtemail = $("#edtemail").val();
+        var accesslevel = "";
+        var valid = true;
+        if (!txtemail.match(mailformat)) {
+            //emailerror.style.display = 'none';
+            return false
+        }
+        if ($("edtfname").val = "") {
+
+        }
+        if ($("edtlname").val = "") {
+
+        }
+        if ($("edtphonenum").val = "") {
+
+        }
+        if ($("edtaddress").val = "") {
+
+        }
+        if (document.getElementById("cbowner")) {
+            accesslevel = "owner";
+        } else
+            if (document.getElementById("cbmanager")) {
+                accesslevel = "manager";
+            } else
+                if (document.getElementById("cbclerk")) {
+                    accesslevel = "clerk"
+                } else {
+                    valid = false;
+                }
+        return valid;
+    }
+     
+    function registerStaff() {
+        if (validate()) {
+            console.log("validation passed");
+            var newstaff = {
+                fname: $("#edtfname").val(),
+                lname: $("#edtlname").val(),
+                email: $("#edtemail").val(),
+                adress: $("#edtaddress").val(),
+                phone_num: $("#edtphonenum").val(),
+                password: sha256($("#edtpass").val()),
+                access: accesslevel,
+                status: "active"
+            }
+
+            $.post("/Account/Register", newstaff).done(function () {
+            if (@TempData["accesslevel"].ToString() != null) {
+                window.location.assign("https://localhost:44395/Account/management");
+            } else {
+                window.location.assign("https://localhost:44395/Account/Login");
+            }
+        });
+        }
+
+    }
+</script>
+

@@ -1,0 +1,169 @@
+﻿@using skyhotelsweb.Models
+@model List<reservation>
+@{
+    ViewBag.Title = "Reservations";
+    TempData.Keep();
+}
+
+    <h2>Index</h2>
+<div class="row">
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        <div class="row" style="height:100%">
+            <div class="card text-white bg-primary" style="padding:10px;height:inherit">
+                <button class="btn btn-primary" data-toggle="collapse" data-target="#filter" aria-expanded="false" aria-controls="filter">Filter Options</button>
+                <div class="collapse card bg-light text-primary" id="filter" style="background-color:white;padding:10px;text-align:left ">
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdAll">
+                            All Reservations
+                            <input class="form-check-input" type="radio" name="status" id="rdAll" value="optionAll" checked>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdConfirmed"> 
+                            Pre Check In
+                            <input class="form-check-input" type="radio" name="status" id="rdCon" value="optionConfirmed">
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdCI">
+                            Checked In
+                            <input class="form-check-input" type="radio" name="status" id="rdCI" value="optionCheckedIn">
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdCO">
+                            Checked Out
+                            <input class="form-check-input" type="radio" name="status" id="rdCO" value="optionChckedOut">
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="rdCan">
+                            Cancelled
+                            <input class="form-check-input" type="radio" name="status" id="rdCan" value="optionCancelled">
+                        </label>
+                    </div>
+                    <hr />
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check btn-sm" name="timeradio" id="btnradio1" autocomplete="off" checked onchange="openRangeSelector(2)">
+                        <label class=" btn btn-outline-primary" for="btnradio1">Today</label>
+                        <input type="radio" class="btn-check btn-sm" name="timeradio" id="btnradio2" autocomplete="off" onchange="openRangeSelector(2)">
+                        <label class="btn btn-outline-primary" for="btnradio2">This week</label>
+                        <input type="radio" class="btn-check btn-sm" name="timeradio" id="btnradio3" autocomplete="off" onchange="openRangeSelector(1)">
+                        <label class="btn btn-outline-primary" for="btnradio3">Range</label>
+                    </div>
+                    <div id="rangedates" class="collapse">
+                         <text>start date</text>
+                         <input type="date" id="filterstartdate" class="form-control" />
+                         <text>end date</text>
+                         <input type="date" id="filterenddate" class="form-control" />
+                    </div>
+                    <hr />
+                    <button class="btn btn-success" id="btnApply" onclick="applyFilter()">Apply</button>
+                </div>
+                <br />
+                <div class="input-group">
+                    <input class="form-control input-group-prepend" type="text" placeholder="Search">
+                    <button class="btn  btn-secondary input-group-append" type="submit">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-10 col-md-10 col-sm-10" style="height:80%">
+        <div style="height:inherit;align-content:initial" id="reservationsDiv">
+            @foreach (reservation booking in Model)
+            {
+                <div style="display:inline-block;width:250px;height:250px;padding:5px;vertical-align:middle">
+                    <a class="clearlink" href="https://localhost:44395/Reservation/Details/@booking.id">
+                        <div class="card border-light shadow">
+                            <div class="card-body" style="text-align:left">
+                                <h3 class="card-title">@booking.start_date</h3>
+                                <p class="card-text"><small>Till @booking.end_date</small></p>
+                                <h4 style="display:inline-block">@booking.name</h4><h6 class="card-subtitle mb-2 text-muted">Room @booking.room_num</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+            </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var navLink = document.getElementById("reservationNavLink");
+        navLink.classList.add("active");
+    });
+    function openRangeSelector(option) {
+        switch (option) {
+            case 1: {
+                $("#rangedates").collapse("show");
+                break;
+            }
+            case 2: {
+                $("#rangedates").collapse("hide");
+                break;
+            }
+        }
+    }
+
+    function applyFilter() {
+        var params = "";
+        if (document.getElementById("rdAll").checked) {
+            params += "a";
+        }
+        if (document.getElementById("rdCon").checked) {
+            params += "b";
+        }
+        if (document.getElementById("rdCI").checked) {
+            params += "c";
+        }
+        if (document.getElementById("rdCO").checked) {
+            params += "d";
+        }
+        if (document.getElementById("rdCan").checked) {
+            params += "e";
+        }
+        if (document.getElementById("btnradio1").checked) {
+            params += "f";
+        }
+        if (document.getElementById("btnradio2").checked) {
+            params += "g";
+        }
+        if (document.getElementById("btnradio3").checked) {
+            params += "h";
+            params += "/" + getdateFormat($("#filterstartdate").val());
+            params += "/" + getdateFormat($("#filterenddate").val());
+        }
+        console.log(params);
+        filterReservations(params);
+    }
+
+    function filterReservations(id){
+        $.getJSON("/Reservation/filterReservations?id=" + id, function (results) {
+            $("#reservationsDiv").empty();
+            $.map(results, function (res) {
+                $("#reservationsDiv").append("<div style='display:inline-block;width:250px;height:250px;padding:5px;vertical-align:middle'>"
+                                        +"<a class='clearlink' href='https://localhost:44395/Reservation/Details/"+res.id+"'>"
+                                        +"<div class='card border-light shadow'>"
+                                        +"<div class='card-body' style='text-align:left'>"
+                                        +"<h3 class='card-title'>"+res.start_date+"</h3>"
+                                        +"<p class='card-text'><small>Till "+ res.end_date+"</small></p>"
+                                        +"<h4 style='display:inline-block'>"+res.name+"</h4><h6 class='card-subtitle mb-2 text-muted'>Room "+res.room_num+"</h6>"
+                                        +"</div>"
+                                        +"</div>"
+                                        +"</a>"
+                                        +"</div>"
+                );
+            });
+        });
+    }
+
+    function getdateFormat(date) {
+        var dateArr = date.split("-");
+        console.log(dateArr);
+        var tmp = dateArr[0];
+        dateArr[0] = dateArr[2];
+        dateArr[2] = tmp;
+        return dateArr.join("X");
+    }
+</script>

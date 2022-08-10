@@ -1,0 +1,423 @@
+﻿@using skyhotelsweb.Models
+@model Room
+@{
+    ViewBag.Title = "Details";
+    TempData.Keep();
+}
+
+<div class="container">
+    <h2>Room Details</h2>
+    <div class=" row">
+
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="row" style="justify-content:center;height:100%">
+                <div class="card text-white bg-primary" style="padding:10px;height:inherit">
+                    <div class="card-header" style="cursor:pointer" onclick="openRooms()">
+                        <span>&#10094;</span> Back
+                    </div>
+                    <div class="text-center" style="margin-top:auto">
+                        <button class="btn btn-danger btn-block" style="color:white" onclick="savechanges(6)">delete room</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*Room Images*@
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <div style="justify-content:center">
+                <div class=" row" style="justify-content:center">
+                    <div id="mediaslot" style="width:auto">
+                        @*Images Go Here*@
+                    </div>
+                    <div class="row" style="align-content:center;width:50%">
+                        <div class="input-group">
+                            <span class="input-group-text input-group-prepend">Add Images</span>
+                            <input type="file" id="imageupload" class="form-control" accept="image/jpeg,image/png,image/jpg" onchange="verifyFile()"/>
+                            <input type="button" class="btn btn-success input-group-append" value="Uplaod" onclick="uploadImage()"/>
+                            <div class="invalid-feedback" id="invalidupload" style="display:none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h2>Information</h2>
+                    @*Room Name*@
+                    <div id="divRName">
+                        <div class="input-group">
+                            <span class="input-group-text input-group-prepend w-25">Room Name</span>
+                            <input type="text" class="form-control" placeholder="@Model.name" disabled />
+                            <span class="btn btn-primary input-group-append" onclick="editfield(1)">Edit</span>
+                        </div>
+                    </div>
+                    <div id="divRNameEDT" style="display:none">
+                        <div class="input-group">
+                            <span class="input-group-text input-group-prepend w-25 ">Room Name</span>
+                            <input id="edtName" type="text" class="form-control" value="@Model.name" />
+                            <span class="btn btn-success" onclick="savechanges(1)">Save</span>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    @*Room Number*@
+                    <div id="divRNum">
+                        <div class="input-group">
+                            <span class="input-group-text input-group-prepend w-25">Room Number</span>
+                            <input type="text" class="form-control " placeholder="@Model.room_num" disabled />
+                            <span class="btn btn-primary" onclick="editfield(2)">Edit</span>
+                        </div>
+                    </div>
+                    <div id="divRNumEDT" style="display:none">
+                        <div class="input-group">
+                            <span class="input-group-prepend input-group-text w-25">Room Number</span>
+                            <input id="edtRoomNum" type="text" class="form-control disabled" value="@Model.room_num" />
+                            <span class="btn btn-success" onclick="savechanges(2)">Save</span>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+
+                    @*Room Description*@
+                    <div id="divDesc">
+                        <div class="input-group">
+                            <span class="input-group-text input-group-prepend w-25">Description</span>
+                            <input type="text" class="form-control " placeholder="@Model.description" disabled />
+                            <span class="btn btn-primary" onclick="editfield(3)">Edit</span>
+                        </div>
+                    </div>
+                    <div id="divDescEDT" style="display:none">
+                        <div class="input-group">
+                            <span class="input-group-prepend input-group-text w-25">Description</span>
+                            <input id="edtDesc" type="text" class="form-control" value="@Model.description" />
+                            <span class="btn btn-success" onclick="savechanges(3)">Save</span>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+
+                    @*Room Capacity*@
+                    <div id="divCapacity">
+                        <div class="input-group">
+                            <span class="input-group-prepend input-group-text w-25">Capacity</span>
+                            <input type="text" class="form-control " placeholder="@Model.capacity" disabled />
+                            <span class="btn btn-primary" onclick="editfield(4)">Edit</span>
+                        </div>
+                    </div>
+                    <div id="divCapacityEDT" style="display:none">
+                        <div class="input-group">
+                            <span class="input-group-prepend input-group-text w-25">Capacity</span>
+                            <input id="edtCapacity" type="text" class="form-control" value="@Model.capacity" />
+                            <span class="btn btn-success" onclick="savechanges(4)">Save</span>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+
+                    @*Room Rate*@
+                    <div id="divRate">
+                        <div class="input-group">
+                            <span class="input-group-prepend input-group-text w-25">Rate</span>
+                            <input type="text" class="form-control " placeholder="@Model.rate" disabled />
+                            <span class="btn btn-primary" onclick="editfield(5)">Edit</span>
+                        </div>
+                    </div>
+                    <div id="divRateEDT" style="display:none">
+                        <div class="input-group">
+                            <span class="input-group-prepend input-group-text w-25">Rate</span>
+                            <input id="edtRate" type="text" class="form-control" value="@Model.rate" />
+                            <span class="btn btn-success" onclick="savechanges(5)">Save</span>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="row">
+                        <h4>Amenities</h4>
+                        <div id="amenitiesdiv">
+                            <input type="checkbox" class="btn-check btn-sm" name="Kitchen facilities" id="a1" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a1" style="margin-bottom:5px">Kitchen Facilities</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Wifi" id="a2" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a2" style="margin-bottom:5px">Wifi</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Television" id="a3" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a3" style="margin-bottom:5px">Television</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Washer and Dryer" id="a4" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a4" style="margin-bottom:5px">Washer and Dryer</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Hair dryer" id="a5" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a5" style="margin-bottom:5px">Hair Dryer</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Towels" id="a6" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a6" style="margin-bottom:5px">Towels</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Dining" id="a7" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a7" style="margin-bottom:5px">Dining</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Gym access" id="a8" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a8" style="margin-bottom:5px">Gym access</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Swimming pool access" id="a9" autocomplete="off" >
+                            <label class=" btn btn-sm btn-outline-primary" for="a9" style="margin-bottom:5px">Swimming pool access</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="In house Butler" id="a10" autocomplete="off">
+                            <label class=" btn btn-sm btn-outline-primary" for="a10" style="margin-bottom:5px">In house Butler</label>
+                            <input type="checkbox" class="btn-check btn-sm" name="Bar" id="a11" autocomplete="off">
+                            <label class=" btn btn-sm btn-outline-primary" for="a11" style="margin-bottom:5px">Bar</label>
+
+                            <input class="btn btn-sm btn-success" type="submit" id="btnupdate" value="update amenities" onclick="updateAmenities()"/>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var navLink = document.getElementById("roomNavLink");
+        navLink.classList.add("active");
+        loadimages(@Model.id);
+        loadAmenities();
+    });
+
+    const amenitiesList = new Map([
+        ["Wifi", 2],
+        ["Washer and Dryer", 4],
+        ["Towels", 6],
+        ["Television", 3],
+        ["Swimming pool access", 9],
+        ["Kitchen facilities", 1],
+        ["In house Butler", 10],
+        ["Hair dryer", 5],
+        ["Gym access", 8],
+        ["Dining", 7],
+        ["Bar", 11]
+    ]);
+
+    var roomAmenities = new Set();
+
+
+    function loadAmenities() {
+        $.getJSON("/Room/getAmenities/" +@Model.id, function (response) {
+            $.map(response, function (res) {
+                roomAmenities.add(res.amenity);
+                if (amenitiesList.has(res.amenity)) {
+                    var btn = document.getElementById("a" + amenitiesList.get(res.amenity));
+                    btn.checked = true;
+                }
+            });
+        });
+    }
+
+    function editfield(element) {
+        switch (element) {
+            case 1: {
+                var txtname = document.getElementById('divRName');
+                var edtname = document.getElementById('divRNameEDT');
+                txtname.style.display = 'none';
+                edtname.style.display = 'inline';
+                break;
+            }
+            case 2: {
+                var txtRnum = document.getElementById('divRNum');
+                var edtRnum = document.getElementById('divRNumEDT');
+                txtRnum.style.display = 'none';
+                edtRnum.style.display = 'inline';
+                break;
+            }
+            case 3: {
+                var txtDesc = document.getElementById('divDesc');
+                var edtDesc = document.getElementById('divDescEDT');
+                txtDesc.style.display = 'none';
+                edtDesc.style.display = 'inline';
+                break;
+            }
+            case 4: {
+                var txtcap = document.getElementById('divCapacity');
+                var edtcap = document.getElementById('divCapacityEDT');
+                txtcap.style.display = 'none';
+                edtcap.style.display = 'inline';
+                break;
+            }
+            case 5: {
+                var txtrate = document.getElementById('divRate');
+                var edtrate = document.getElementById('divRateEDT');
+                txtrate.style.display = 'none';
+                edtrate.style.display = 'inline';
+                break;
+            }
+        }
+    }
+
+    function verifyFile() {
+        var imgFile = document.getElementById("imageupload");
+        if (typeof (imgFile.files) != undefined) {
+            var filename = imgFile.files[0].name;
+            var fileSize = parseFloat(imgFile.files[0].size / 1048576).toFixed(2);
+            var uploadfeedback = document.getElementById("invalidupload");
+            if ((filename.length > 30) || (fileSize > 3.00)) {
+                imgFile.classList.remove('is-valid');
+                imgFile.classList.add('is-invalid');
+                uploadfeedback.style.display = 'inline';
+                uploadfeedback.innerHTML = "";
+                if (fileSize > 3.00) {
+                    uploadfeedback.append("Maximum File Size Exceeded 3Mb! ");
+                }
+                if (filename.length > 30) {
+                    uploadfeedback.append("Maximum Filename Size Exceeded 30 Characters! ");
+                }
+                return false;
+            } else {
+                imgFile.classList.remove('is-invalid');
+                uploadfeedback.style.display = 'none'
+                imgFile.classList.add('is-valid');
+                console.log("file screening successful image uploaded will begin here");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function uploadImage() {
+        if (verifyFile()) {
+            var file = $("#imageupload").get(0).files;
+        var data = new FormData;
+        data.append("r_id",@Model.id);
+        data.append("roomImage",file[0]);
+
+
+        $.ajax({
+            async: true,
+            type: "POST",
+            dataType: "JSON",
+            url: "/Room/uploadRoomImage",
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (data) {
+                alert(data);
+            }
+        });
+        }
+    }
+
+    function updateAmenities() {
+        var addedAmenities = [];
+        var deletedAmenities = [];
+
+        for (let i = 0; i < amenitiesList.size; i++) {
+            let checkbox = document.getElementById("a" + (i + 1));
+            if (checkbox.checked) {
+                if (!roomAmenities.has(checkbox.name)) {
+                    addedAmenities.push(amenitiesList.get(checkbox.name));
+                }
+            } else {
+                if (roomAmenities.has(checkbox.name)) {
+                    deletedAmenities.push(amenitiesList.get(checkbox.name));
+                }
+            }
+        }
+
+        deleteAmenities(deletedAmenities);
+        addAmenities(addedAmenities);
+    }
+
+    function deleteAmenities(deleted) {
+        console.log(deleted);
+        for (let i = 0; i < deleted.length; i++) {
+            var deleteamenity = { 'a_id': deleted[i] };
+            $.post("/Room/removeAmenities/" +@Model.id, deleteamenity);
+        }
+    }
+
+    function addAmenities(added) {
+        console.log(added);
+        for (let i = 0; i < added.length; i++) {
+            var newamenity = { 'a_id': (added[i]) };
+            $.post("/Room/addAmenities/" + @Model.id, newamenity);
+        }
+    }
+
+    function savechanges(value) {
+        switch (value) {
+            case 1: {
+                var update = {
+                    name: $("#edtName").val()
+                };
+                postChange(update);
+                break;
+            }
+            case 2: {
+                var update = {
+                    room_num: $("#edtRoomNum").val()
+                };
+                postChange(update);
+                break;
+            }
+            case 3: {
+                var update = {
+                    description: $("#edtDesc").val()
+                };
+                postChange(update);
+                break;
+            }
+            case 4: {
+                var update = {
+                    capacity: $("#edtCapacity").val()
+                };
+                postChange(update);
+                break;
+            }
+            case 5: {
+                var update = {
+                    rate: $("#edtRate").val()
+                };
+                postChange(update);
+                break;
+            }
+            case 6: {
+                'Wifi'
+                '4', 'Washer and Dryer'
+                '6', 'Towels'
+                '3', 'Television'
+                '9', 'Swimming pool access'
+                '1', 'Kithcen facilities'
+                '10', 'In house Butler'
+                '5', 'Hair dryer'
+                '8', 'Gym access'
+                '7', 'Dining'
+                '11', 'Bar'
+                var update = {
+                    status: 'deleted'
+                };
+                postChange(update);
+                break;
+            }
+        }
+    }
+
+    function loadimages(id) {
+        $.getJSON("/Room/media?id=" + id, function (images) {
+
+            $.map(images, function (img) {
+                $("#mediaslot").append("<div style='display:inline-block;width:200px;padding:5px'>"
+                    + "<div class='img-thumbnail'>"
+                    + "<div class='imgcontainer' style='width:180px;height:150px'>"
+                    + "<img class='rounded' src='http://localhost:4040/media/" + img.filename + "' style='object-fit:cover;width:100%;height:100%' />"
+                    + "</div>"
+                    + "</div>"
+                    + "</div>"
+                );
+            });
+        });
+    }
+
+    function postChange(postdata) {
+        $.post("/Room/UpdateRoom/"+@Model.id, postdata)
+            .done(function (data) {
+                console.log(data);
+                window.location.reload();
+            });
+    }
+
+    function openRooms() {
+        window.location.assign("https://localhost:44395/Room/Index");
+    }
+
+</script>

@@ -1,0 +1,309 @@
+﻿
+@{
+    ViewBag.Title = "Rooms";
+    TempData.Keep();
+}
+
+<h2>Rooms Statistics</h2>
+<div class=" row">
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        <div id="roomList" class="card text-white bg-primary" style="height:100%;padding:10px">
+            <div style="cursor:pointer" onclick="openRooms()">
+                <span>&#10094;</span> Back
+            </div>
+
+        </div>
+    </div>
+    <div class="col-lg-10 col-md-10 col-sm-10">
+        <div class="row">
+            <div class="col-3">
+                <h5>Summer</h5>
+                <div>
+                    <canvas id="summer" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+            <div class="col-3">
+                <h5>Autumn</h5>
+                <div>
+                    <canvas id="autumn" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+            <div class="col-3">
+                <h5>Winter</h5>
+                <div>
+                    <canvas id="winter" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+            <div class="col-3">
+                <h5>Spring</h5>
+                <div>
+                    <canvas id="spring" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="justify-content:center">
+            <div class="col-8">
+                <div class="row">
+                    <div id="calender">
+                        <div class="month">
+                            <ul>
+                                <li class="prev" onclick="prevMonth()" style="cursor:pointer">&#10094;</li>
+                                <li class="next" onclick="nextMonth()" style="cursor:pointer">&#10095;</li>
+                                <li id="CalenderMonth">
+                                </li>
+                            </ul>
+                        </div>
+
+                        <ul class="weekdays">
+                            <li>Su</li>
+                            <li>Mo</li>
+                            <li>Tu</li>
+                            <li>We</li>
+                            <li>Th</li>
+                            <li>Fr</li>
+                            <li>Sa</li>
+                        </ul>
+
+                        <ul class="days" id="CalenderDays">
+                        </ul>
+                    </div>
+                    <div id="roomPerformanceDiv">
+                        <h4 id="canvasTitle"></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/chart.min.js"></script>
+<script type="text/javascript">
+
+    var dates = new Set();
+    var roomlabels = [];
+    $(document).ready(function () {
+        loadpopularity();
+    });
+
+    function loadpopularity() {
+        $.getJSON("/Statistics/popularity/", function (response) {
+            console.log(response); 
+            var summerdata = [];
+            var winterdata = [];
+            var autumndata = [];
+            var springdata = [];
+            $.map(response, function (data) {
+                roomlabels.push(data.name);
+                winterdata.push(data.winter);
+                summerdata.push(data.summer);
+                autumndata.push(data.autumn);
+                springdata.push(data.spring);
+            });
+            var ctx1 = document.getElementById("summer").getContext('2d');
+            seasonalpopularity(summerdata, roomlabels,ctx1);
+            var ctx2 = document.getElementById("autumn").getContext('2d');
+            seasonalpopularity(autumndata, roomlabels, ctx2);
+            var ctx3 = document.getElementById("winter").getContext('2d');
+            seasonalpopularity(winterdata, roomlabels, ctx3);
+            var ctx4 = document.getElementById("spring").getContext('2d');
+            seasonalpopularity(springdata, roomlabels, ctx4);
+
+            var cardlabels = $("#roomList");
+            for (let i = 0; i < roomlabels.length; i++) {
+                cardlabels.append('<div class="text-center"><button class ="btn btn-primary" onclick ="fetchDates(' + (i) + ')">' + roomlabels[i] + '</button ></div >');
+            }
+        });
+        fetchDates(1);
+    }
+
+    function seasonalpopularity(data, labels,ctx) {
+        var cancelChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cancellations',
+                    data: data,
+                    backgroundColor: COLORS,
+                    borderWidth: 1,
+                    hoverOffset: 5
+                }]
+            }
+        });
+    }
+
+    function fetchDates(id) {
+        dates = new Set();
+        $.getJSON("/Reservation/fetchDates/" + id, function (response) {
+            console.log("FetchDates Response");
+            console.log(response);
+            $.map(response, function (date) {
+                dates.add(date.start_date);
+                dates.add(date.end_date);
+            });
+            console.log(dates);
+            setupCalender();
+            roomPerformance(id);
+        });
+    }
+
+    function roomPerformance(id){
+        $.getJSON("/Statistics/roomPerformance/" + id, function (stats) {
+            var labels = [];
+            var completed = [];
+            var cancelled = [];
+            $.map(stats, function (stat) {
+                labels.push(MONTHS[stat.month - 1]);
+                completed.push(stat.completed);
+                cancelled.push(stat.cancelled);
+            });
+            var roomstatsdiv = $("#roomPerformanceDiv");
+            roomstatsdiv.empty();
+            roomstatsdiv.append("<div class='row'><h5>" + roomlabels[id] + "</h5></div><canvas id='roomCanvas"+id+"' style='width:600px;height:300px'></canvas>");
+            roomstats(completed, cancelled, labels,id);
+        });
+    }
+
+    function roomstats(completed, cancelled, labels,id) {
+        var ctx = document.getElementById("roomCanvas"+id).getContext('2d');
+        var roomstats = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'completed reservations',
+                    data: completed,
+                    backgroundColor: COLORS[2],
+                    borderColor: COLORS[2],
+                    borderWidth: 2,
+                },
+                {
+                    label: 'cancelled reservations',
+                    data: cancelled,
+                    backgroundColor: COLORS[5],
+                    borderColor: COLORS[5],
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                tension: 0.3,
+                scales: {
+                    y: {
+                        suggestedMax: 10
+                    }
+                }
+            }
+        });
+    }
+
+    function setupCalender() {
+        $("#CalenderMonth").empty();
+        $("#CalenderMonth").append(
+            calender.month[calender.current.getMonth()].month
+            + "</br >"
+            + "<span style='font - size: 18px'>" + calender.current.getFullYear() + "</span>"
+        );
+
+        let firstDay = new Date(calender.current.getFullYear(), calender.current.getMonth(), 1);
+        let dateappend = "/" + (calender.current.getMonth() + 1) + "/" + calender.current.getFullYear();
+        $("#CalenderDays").empty();
+        let innerHtml = "";
+        for (let i = 0; i < firstDay.getDay(); i++) {
+            innerHtml += "<li> </li>";
+        }
+        let mark = false;
+        if ((dates !== undefined)) {
+            for (let i = 1; i <= calender.month[calender.current.getMonth()].days; i++) {
+                if (dates.has(i + dateappend)) {
+                    console.log("dates matched");
+                    if (mark) {
+                        innerHtml += "<li><span class='booked'>" + i + "</span></li>";
+                        mark = false;
+                        continue;
+                    }
+                    else {
+                        mark = true;
+                    }
+                }
+                if (mark) {
+                    innerHtml += "<li><span class='booked'>" + i + "</span></li>";
+                } else {
+                    innerHtml += "<li>" + i + "</li>";
+                }
+            }
+        } else {
+            for (let i = 1; i <= calender.month[calender.current.getMonth()].days; i++) {
+                innerHtml += "<li>" + i + "</li>";
+            }
+        }
+        $("#CalenderDays").append(innerHtml);
+    }
+
+    function nextMonth() {
+        calender.current = new Date(calender.current.getFullYear(), calender.current.getMonth() + 1, calender.current.getDate());
+        setupCalender();
+    }
+
+    function prevMonth() {
+        calender.current = new Date(calender.current.getFullYear(), calender.current.getMonth() - 1, calender.current.getDate());
+        setupCalender();
+    }
+
+
+    const calender = {
+        current: new Date(),
+        month: [
+            { month: "January", days: 31 },
+            { month: "February", days: 28 },
+            { month: "March", days: 31 },
+            { month: "April", days: 30 },
+            { month: "May", days: 31 },
+            { month: "June", days: 30 },
+            { month: "July", days: 31 },
+            { month: "August", days: 31 },
+            { month: "September", days: 30 },
+            { month: "October", days: 31 },
+            { month: "November", days: 30 },
+            { month: "December", days: 31 }
+        ],
+    }
+
+    const MONTHS = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
+
+    const COLORS = [
+        '#2c3e50',
+        '#95a5a6',
+        '#18bc9c',
+        '#3498db',
+        '#f39c12',
+        '#e74c3c',
+        '#2c3e50',
+        '#6610f2',
+        '#6f42c1',
+        '#e83e8c',
+        '#e74c3c',
+        '#fd7e14',
+        '#f39c12',
+        '#18bc9c',
+        '#20c997',
+        '#3498db'
+    ];
+
+</script>

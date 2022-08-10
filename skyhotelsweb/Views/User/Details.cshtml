@@ -1,0 +1,30 @@
+﻿
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>User Detials</h2>
+<div class="row">
+    <div class="col">
+        <div class="form form-floating">
+            <input class="form-control" type="text" id="fltFName" value="@Model.fname" />
+            <label for="fltFName">First Name</label>
+        </div>
+        <br />
+        <div class="form form-floating">
+            <input class="form-control" type="text" id="fltLName" value="@Model.lname" />
+            <label for="fltLName">Last Name</label>
+        </div>
+        <br />
+        <div class="form form-floating">
+            <input class="form-control" type="text" id="fltEmail" value="@Model.email" />
+            <label for="fltEmail">Email Address</label>
+        </div>
+
+        <div class="form form-floating">
+            <input class="form-control" type="text" id="fltEmail" value="@Model.email" />
+            <label for="fltEmail">Billing Address</label>
+        </div>
+
+    </div>
+</div>

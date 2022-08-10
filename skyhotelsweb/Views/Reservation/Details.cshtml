@@ -1,0 +1,364 @@
+﻿@using skyhotelsweb.Models
+@model reservation
+@{
+    ViewBag.Title = "Reservation Details";
+    TempData.Keep();
+}
+
+<div class="container">
+    <h2>Details</h2>
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="row" style="justify-content:center;height:100%">
+                <div class=" card text-white bg-primary" style="padding:10px;height:inherit">
+                    <button class="btn btn-primary" onclick="openReservations()"><span>&#10094;</span> Back</button>
+                    <button class="btn btn-primary" data-toggle="collapse" data-target="#calender" aria-expanded="false" aria-controls="calender">
+                        Scheduling
+                    </button>
+                    <div class="collapse" id="calender" style="width:300px">
+                        <div class="month"> 
+                            <ul>
+                                <li class="prev" onclick="prevMonth()" style="cursor:pointer">&#10094;</li>
+                                <li class="next" onclick="nextMonth()" style="cursor:pointer">&#10095;</li>
+                                <li id="CalenderMonth">
+                                </li>
+                            </ul>
+                        </div>
+
+                        <ul class="weekdays">
+                            <li>Su</li>
+                            <li>Mo</li>
+                            <li>Tu</li>
+                            <li>We</li>
+                            <li>Th</li>
+                            <li>Fr</li>
+                            <li>Sa</li>
+                        </ul>
+
+                        <ul class="days" id="CalenderDays">
+                        </ul>
+                    </div>
+                    @if ((Model.status.Equals("active"))|| (Model.status.Equals("completed")))
+                    {
+                        <div class="card-header" onclick="openInvoice()" style="cursor:pointer">
+                            Invoice
+                        </div>
+                    }
+                    @if (Model.status.Equals("confirmed"))
+                    {
+                        <div class="text-center" style="margin-top:auto">
+                            <button class="btn btn-block btn-danger" onclick="updateReservation(5)">cancel reservation</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-9 col-sm-9">
+            <div class="row" style="justify-content:center;height:100%">
+                <div class="row" style="justify-content:center">
+                    <div class="col-5" style="padding:10px">
+                        <h2>Guest Information</h2>
+                        <div class="form form-floating">
+                            <input class="form-control" type="text" id="fltFName" value="@Model.fname" />
+                            <label for="fltFName">First Name</label>
+                        </div>
+                        <br />
+                        <div class="form form-floating">
+                            <input class="form-control" type="text" id="fltLName" value="@Model.lname" />
+                            <label for="fltLName">Last Name</label>
+                        </div>
+                        <br />
+                        <div class="form form-floating">
+                            <input class="form-control" type="text" id="fltEmail" value="@Model.email" />
+                            <label for="fltEmail">Email Address</label>
+                        </div>
+                    </div>
+                    <div class="col-5" style="padding:10px">
+                        <h2>Room Information</h2>
+                        <div class="form form-floating">
+                            <input class="form-control" type="text" id="fltRoom" value="@Model.name" />
+                            <label for="fltRoom">Room</label>
+                        </div>
+                        <br />
+                        <div class="form form-floating">
+                            <input class="form-control" type="text" id="fltNum" value="@Model.room_num" />
+                            <label for="fltNum">Room No</label>
+                        </div>
+                        <br />
+                        <div>
+                            <button class="btn btn-info" onclick="openUserDetails(@Model.guest_id)">More Info</button>
+                        </div>
+                    </div>
+                    <div class="col-10">
+                        <div id="divStart">
+                            <div class="input-group">
+                                <span class="input-group-text input-group-prepend">Start Date</span>
+                                <input type="text" class="form-control w-50" placeholder="@Model.start_date" disabled />
+                                <span class="btn btn-primary input-group-append" onclick="editfield(1)">Edit</span>
+                            </div>
+                        </div>
+                        <div id="divEDTStart" style="display:none" onfocusout="hideEdit(1)">
+                            <div class="input-group">
+                                <span class="input-group-text input-group-prepend">Start Date</span>
+                                <input id="edtStart" type="date" class="form-control w-50" value="@Model.start_date" />
+                                <span class="btn btn-success" onclick="updateReservation(1)">Save</span>
+                            </div>
+                        </div>
+                        <br />
+                        <div id="divEnd">
+                            <div class="input-group">
+                                <span class="input-group-text input-group-prepend">End Date  </span>
+                                <input type="text" class="form-control w-50" placeholder="@Model.end_date" disabled />
+                                <span class="btn btn-primary input-group-append" onclick="editfield(2)">Edit</span>
+                            </div>
+                        </div>
+                        <div id="divEDTEnd" style="display:none" onfocusout="hideEdit(2)">
+                            <div class="input-group">
+                                <span class="input-group-text input-group-prepend ">End Date</span>
+                                <input id="edtEnd" type="date" class="form-control w-50" value="@Model.end_date" />
+                                <span class="btn btn-success" onclick="updateReservation(2)">Save</span>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+
+                </div>
+                <div class="row" style="text-align:center">
+                    <h4>Unique Code</h4>
+                    <h2>@Model.code </h2>
+                </div>
+                @*confirmed?cancelled?active?*@
+                @if (Model.status == "confirmed")
+                {
+                    <div class="row">
+                        <button class="btn btn-success btn-block" onclick="updateReservation(3)">Check In</button>
+
+                    </div>
+                }
+                else if (Model.status == "active")
+                {
+                    <div class="row">
+                        <button class="btn btn-primary btn-block" onclick="updateReservation(4)">Check Out</button>
+                    </div>
+                }
+                else if (Model.status == "cancelled")
+                {
+                    <div class="alert alert-danger">
+                        This reservation has been cancelled
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-success">
+                        This reservation is completed
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var navLink = document.getElementById("reservationNavLink");
+        navLink.classList.add("active");
+        fetchDates();
+    });
+    var dates = new Set();
+
+    function fetchDates() {
+        $.getJSON("/Reservation/fetchDates/" +@Model.room_id, function (response) {
+            console.log("FetchDates Response");
+            console.log(response);
+            $.map(response, function (date) {
+                dates.add(date.start_date);
+                dates.add(date.end_date);
+            });
+            console.log(dates);
+            setupCalender();
+        });
+    }
+
+    const calender = {
+        current: new Date(),
+        month: [
+            { month: "January", days: 31 },
+            { month: "February", days: 28 },
+            { month: "March", days: 31 },
+            { month: "April", days: 30 },
+            { month: "May", days: 31 },
+            { month: "June", days: 30 },
+            { month: "July", days: 31 },
+            { month: "August", days: 31 },
+            { month: "September", days: 30 },
+            { month: "October", days: 31 },
+            { month: "November", days: 30 },
+            { month: "December", days: 31 }
+        ],
+    }
+
+    function setupCalender() {
+        $("#CalenderMonth").empty();
+        $("#CalenderMonth").append(
+            calender.month[calender.current.getMonth()].month
+            + "</br >"
+            + "<span style='font - size: 18px'>" + calender.current.getFullYear() + "</span>"
+        );
+
+        let firstDay = new Date(calender.current.getFullYear(), calender.current.getMonth(), 1);
+        let dateappend = "/" + (calender.current.getMonth() + 1) + "/" + calender.current.getFullYear();
+        $("#CalenderDays").empty();
+        let innerHtml = "";
+        for (let i = 0; i < firstDay.getDay();i++) {
+            innerHtml += "<li> </li>";
+        }
+        let mark = false;
+        if ((dates !== undefined)) {
+            for (let i = 1; i <= calender.month[calender.current.getMonth()].days; i++) {
+                if (dates.has(i + dateappend)) {
+                    console.log("dates matched");
+                    if (mark) {
+                        innerHtml += "<li><span class='booked'>" + i + "</span></li>";
+                        mark = false;
+                        continue;
+                    }
+                    else {
+                        mark = true;
+                    }
+                }
+                if (mark) {
+                    innerHtml += "<li><span class='booked'>" + i + "</span></li>";
+                } else {
+                    innerHtml += "<li>" + i + "</li>";
+                }
+            }
+        } else {
+            for (let i = 1; i <= calender.month[calender.current.getMonth()].days; i++) {
+                innerHtml += "<li>" + i + "</li>";
+            }
+        }
+        $("#CalenderDays").append(innerHtml);
+    }
+
+    function nextMonth() {
+        calender.current = new Date(calender.current.getFullYear(), calender.current.getMonth() + 1, calender.current.getDate());
+        setupCalender();
+    }
+
+    function prevMonth() {
+        calender.current = new Date(calender.current.getFullYear(), calender.current.getMonth() - 1, calender.current.getDate());
+        setupCalender();
+    }
+
+    function getdateFormat(date) {
+        var dateArr = date.split("-");
+        console.log(dateArr);
+        var tmp = dateArr[0];
+        dateArr[0] = dateArr[2];
+        dateArr[2] = tmp;
+        return dateArr.join("/");
+    }
+
+    function editfield(element) {
+        switch (element) {
+            case 1: {
+                var txtstart = document.getElementById('divStart');
+                var edtstart = document.getElementById('divEDTStart');
+                txtstart.style.display = 'none';
+                edtstart.style.display = 'inline';
+                break;
+            }
+            case 2: {
+                var txtend = document.getElementById('divEnd');
+                var edtend = document.getElementById('divEDTEnd');
+                txtend.style.display = 'none';
+                edtend.style.display = 'inline';
+                break;
+            }
+        }
+    }
+
+    function updateReservation(change) {
+        switch (change) {
+            case 1: {
+                var update = {
+                    start_date: getdateFormat($("#edtStart").val())
+                };
+                break;
+            }
+            case 2: {v
+                var update = {
+                    end_date: getdateFormat($("#edtEnd").val())
+                }
+                break;
+            }
+            case 3: {
+                var update = {
+                    status: "active"
+                }
+                break;
+            }
+            case 4: {
+                var update = {
+                    status: "completed"
+                }
+                break;
+            }
+            case 5: {
+                var update = {
+                    status: "cancelled"
+                }
+                break;
+            }
+        }
+        
+        $.post("/Reservation/UpdateReservation/"+@Model.id, update)
+            .done(function (result) {
+                console.log(result);
+                createInvoice();
+            });
+    }
+
+    function hideEdit(element) {
+        switch (element) {
+            case 1: {
+                var txtstart = document.getElementById('divStart');
+                var edtstart = document.getElementById('divEDTStart');
+                txtstart.style.display = 'inline';
+                edtstart.style.display = 'none';
+                break;
+            }
+            case 2: {
+                var txtend = document.getElementById('divEnd');
+                var edtend = document.getElementById('divEDTEnd');
+                txtend.style.display = 'inline';
+                edtend.style.display = 'none';
+                break;
+            }
+        }
+    }
+
+    function createInvoice(){
+        var postData = {
+            guest_id: @Model.guest_id
+        };
+        $.post("/Invoice/CreateInvoice/"+@Model.id, postData)
+            .done(function (result) {
+                console.log(result);
+                window.location.reload();
+            });
+    }
+
+    function openReservations(){
+        window.location.assign("https://localhost:44395/Reservation/Index");
+    }
+
+    function openUserDetails(id) {
+        window.location.assign("https://localhost:44395/User/Details/" + id);
+    }
+
+    function openInvoice() {
+        window.location.assign("https://localhost:44395/Invoice/Details/"+@Model.id);
+    }
+
+</script>

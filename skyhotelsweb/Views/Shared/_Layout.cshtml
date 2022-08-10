@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - SKY hotels</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="https://localhost:44395/Home/Index/">SKY hotels</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav me-auto">
+                    @if (ViewBag.access != null)
+                    {
+                        <li class="nav-item">
+                            @*class="nav-link active"*@
+                            <a id="homeNavLink" class="nav-link" href="https://localhost:44395/Home/Index/">Home</a>
+                        </li>
+                        if (TempData["accesslevel"].ToString() != "owner")
+                        {
+                            <li class="nav-item">
+                                @*class="nav-link active"*@
+                                <a id="reservationNavLink" class="nav-link" href="https://localhost:44395/Reservation/Index/">Reservations</a>
+                            </li>
+                        }
+
+                        if (TempData["accesslevel"].ToString() == "owner")
+                        {
+                            <li class="nav-item">
+                                <a id="roomNavLink" class="nav-link" href="https://localhost:44395/Room/Index/">Rooms</a>
+                            </li>
+                        }
+                        if ((TempData["accesslevel"].ToString() == "manager") || (TempData["accesslevel"].ToString() == "owner"))
+                        {
+                            <li class="nav-item">
+                                <a id="reportsNavLink" class="nav-link" href="https://localhost:44395/Statistics/Summary/">Reports</a>
+                            </li>
+                        }
+                        if (TempData["accesslevel"].ToString() == "manager")
+                        {
+                            <li class="nav-item">
+                                <a id="accountsNavLink" class="nav-link" href="https://localhost:44395/Home/Index/" style="float:right">Accounts</a>
+                            </li>
+                        }
+
+                    }
+                </ul>
+
+                @if (TempData["accesslevel"] != null)
+                {
+                    <ul class="navbar-nav" style="float:left">
+                        <li class="nav-item">
+                            <a id="profileNavLink" class="nav-link" href="https://localhost:44395/Account/Logout/" style="float:right"> Logout <i class="fa fa-user" aria-hidden="true"></i></a>
+                        </li>
+                    </ul>
+                }
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+    </div>
+    <footer class="bg-primary text-white" style="text-align:center;height:5vh">
+        <h6>&copy; @DateTime.Now.Year - SKY hotels</h6>
+    </footer>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

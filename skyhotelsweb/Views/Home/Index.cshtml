@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    TempData.Keep();
+}
+
+<h2>Home</h2>
+<div class=" row">
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        <div class="card text-white bg-primary" style="height:100%">
+            <div class="row">
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-10 col-md-10 col-sm-10">
+        <div class=" row">
+            <div style='display:inline-block;width:500px;height:300px;padding:5px;vertical-align:middle'>
+                <div id="reservations" class="card bg-info text-white" style="text-align:center;padding:10px;height:100%;cursor:pointer" onclick="location.href='https://localhost:44395/Reservation/Index'">
+                    <img src="~/media/Businessman-pressing-bell-at-hotel-reception.jpg" style='object-fit:cover;width:100%;height:100%' />
+                    <div class="centered"><h2 class="text-white">RESERVATIONS</h2></div>
+                </div>
+            </div>
+                   
+            <div style='display: inline-block;width:500px;height:300px;padding: 5px;vertical-align: middle'>
+                <div id="rooms" class=" card bg-warning text-white" style="text-align:center;padding:10px;height:100%;cursor:pointer" onclick="location.href='https://localhost:44395/Room/index'">
+                    <img src="~/media/istockphoto-90658.jpg" style='object-fit:cover;width:100%;height:100%' />
+                    <div class="centered"><h2 class="text-white">ROOMS</h2></div>
+                </div>
+            </div>
+                
+            </div>
+        <div class=" row">
+            <div style='display:inline-block;width:500px;height:300px;padding:5px;vertical-align:middle'>
+                <div id="reports" class="card bg-success text-white" style="text-align:center;padding:10px;height:100%;cursor:pointer" onclick="location.href='https://localhost:44395/Statistics/Summary'">
+                    <img src="~/media/file-20180918-158240-1jd9gm6.jpg" style='object-fit:cover;width:100%;height:100%' />
+                    <div class="centered"><h2 class="text-white">REPORTS</h2></div>
+                </div>
+            </div>
+                
+                <div style='display:inline-block;width:500px;height:300px;padding:5px;vertical-align:middle;'>
+                    <div id="accounts" class="card bg-danger text-white" style="text-align:center;padding:10px;height:100%;cursor:pointer" onclick="location.href='https://localhost:44395/Account/management'" >
+                        <img src="~/media/DynamicReception5862989.jpg" style='object-fit:cover;width:100%;height:100%' />
+                        <div class="centered" ><h2 class="text-white">ACCOUNTS</h2></div>
+                    </div>
+                </div>                
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var access = (@ViewBag.access).toString();
+        var navLink = document.getElementById("homeNavLink");
+        navLink.classList.add("active");
+        if (access == "clerk") {
+            var room = document.getElementById("rooms");
+            room.classList.add("unavailable");
+            var report = document.getElementById("reports");
+            report.classList.add("unavailable");
+        }
+        if (access == "manager") {
+            var room = document.getElementById("rooms");
+            room.classList.add("unavailable");
+        }
+        if (access = "owner") {
+            var reservation = document.getElementById("reservations");
+            reservation.classList.add("unavailable");
+            var account = document.getElementById("accounts");
+            account.classList.add("unavailable");
+        }
+    });
+</script>

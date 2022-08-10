@@ -1,0 +1,96 @@
+﻿
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div class="row">
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        <div class="row" style="justify-content:center;height:100%">
+            <div class=" card text-white bg-primary" style="padding:10px;height:inherit">
+                <button class="btn btn-primary" onclick="openManagement()"><span>&#10094;</span> Back</button>
+                <div class="text-center" style="margin-top:auto">
+                    <button class="btn btn-block btn-danger" onclick="deleteStaff()">Delete Staff</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-9 col-md-9 col-sm-9">
+        <div class="row" style="justify-content:center;height:100%">
+            <div class="row" style="justify-content:center">
+                <div class="col-10" style="padding:10px">
+                    <div class="form form-floating">
+                        <input class="form-control" type="text" id="fltFName" value="@Model.fname" disabled />
+                        <label for="fltFName">First Name</label>
+                    </div>
+                    <br />
+                    <div class="form form-floating">
+                        <input class="form-control" type="text" id="fltLName" value="@Model.lname" disabled />
+                        <label for="fltLName">Last Name</label>
+                    </div>
+                    <br />
+                    <div class="form form-floating">
+                        <input class="form-control" type="text" id="fltemail" value="@Model.email" />
+                        <label for="fltEmail">Email Address</label>
+                    </div>
+                    <br />
+                    <div class="form form-floating">
+                        <input class="form-control" type="number" id="fltphone" value="@Model.phone_num" />
+                        <label for="fltEmail">Phone Number</label>
+                    </div>
+                    <br />
+                    <div class="form form-floating">
+                        <input class="form-control" type="text" id="fltaddress" value="@Model.address" />
+                        <label for="fltEmail">Physical Address</label>
+                    </div>
+                    <br />
+                </div>
+            </div>
+                <div class="col-3">
+                    <button class="btn btn-success" onclick="updateStaff()">Save Changes</button>
+               </div>
+            
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    var email;
+    var address;
+    var phone_num;
+
+    $(document).ready(function () {
+        email = $("#fltemail").val();
+        address = $("#fltaddress").val();
+        phone_num = $("#fltphone").val();
+    });
+
+    function updateStaff() {
+        console.log(email, address, phone_num);
+            var update = {};
+            if ($("#fltemail").val() != email) {
+                update = { ...update, email: $("#fltemail").val()};
+            }
+            if ($("#fltaddress").val() != address) {
+                update = { ...update, address: $("#fltaddress").val()};
+            }
+            if ($("#fltphone").val() != phone_num) {
+                update = { ...update, phone_num: $("#fltphone").val()};
+            }
+
+        console.log(update);
+        if (Object.keys(update).length > 0){
+            $.post("/Account/UpdateAccount/"+@Model.id, update).done(function () { window.location.reload(); });
+        }
+    }
+
+    function deleteStaff() {
+        var update = { status: "inactive" };
+        $.post("/Account/UpdateAccount/" +@Model.id, update).done(function () { window.location.assign("https://localhost:44395/Account/Management"); });
+    }
+
+    function openManagement() {
+        window.location.assign("https://localhost:44395/Account/Management");
+    }
+</script>

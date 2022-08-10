@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+    TempData.Keep();
+}
+
+<h2>Create</h2>
+
+<div class="container">
+    <h2>Room Details</h2>
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class=" card bg-primary text-white" style="height:100%">
+                <div class="row">
+                    <h5 style="color:white">Calender</h5>
+                </div>
+                <div class="row">
+                    <h5 style="color:white">Invoice</h5>
+                </div>
+                <div class="row">
+                    <h5 style="color:white">Add Room</h5>
+                </div>
+            </div> 
+        </div>
+        @*Room Images*@
+        <div class="col-lg-10 col-md-10 col-sm-10">
+
+            @*Room Name*@
+            <div class="row">
+                <div id="divRNameEDT">
+                    <div class="input-group">
+                        <span class="input-group-text input-group-prepend w-25 ">Room Name</span>
+                        <input id="edtName" type="text" class="form-control w-75" placeholder="Room Name" />
+                    </div>
+                </div>
+                <br />
+                <br />
+                @*Room Number*@
+                <div id="divRNumEDT">
+                    <div class="input-group">
+                        <span class="input-group-prepend input-group-text w-25">Room Number</span>
+                        <input id="edtRoomNum" type="text" class="form-control disabled" placeholder="Room Number" />
+                    </div>
+                </div>
+                <br />
+                <br />
+
+                @*Room Description*@
+                <div id="divDescEDT">
+                    <div class="input-group">
+                        <span class="input-group-prepend input-group-text w-25">Description</span>
+                        <input id="edtDesc" type="text" class="form-control" placeholder="Room Desctiption" />
+                    </div>
+                </div>
+                <br />
+                <br />
+
+                @*Room Capacity*@
+                <div id="divCapacityEDT">
+                    <div class="input-group">
+                        <span class="input-group-prepend input-group-text w-25">Capacity</span>
+                        <input id="edtCapacity" type="number" class="form-control" placeholder="Room Bed Capacity" />
+                    </div>
+                </div>
+                <br />
+                <br />
+
+                @*Room Rate*@
+                <div id="divRateEDT">
+                    <div class="input-group">
+                        <span class="input-group-prepend input-group-text w-25">Rate</span>
+                        <input id="edtRate" type="number" class="form-control" value="Room Rate per night" />
+                    </div>
+                </div>
+                <br />
+                <br />
+
+            </div>
+            <div class="row">
+                <input class="btn btn-success" type="submit" onclick="createRoom()" />
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var navLink = document.getElementById("roomNavLink");
+        navLink.classList.add("active");
+    });
+    function createRoom() {
+        var newRoom = {
+            name: $("#edtName").val(),
+            description: $("#edtDesc").val(),
+            room_num: $("#edtRoomNum").val(),
+            capacity: $("#edtCapacity").val(),
+            status: "active",
+            Rate: $("#edtRate").val()
+        }
+
+        $.post("/Room/CreateRoom", newRoom)
+            .done(function (result) {
+                window.location.assign("https://localhost:44395/Room/Index");
+            });
+    }
+</script>
+

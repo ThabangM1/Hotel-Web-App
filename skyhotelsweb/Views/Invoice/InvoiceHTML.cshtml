@@ -1,0 +1,172 @@
+﻿
+@{
+    ViewBag.Title = "InvoiceHTML";
+    TempData.Keep();
+}
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    @*<meta name="viewport" content="width=device-width, initial-scale=1.0">*@
+    <title>@ViewBag.Title - SKY hotels</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="row" style="justify-content:center;height:100%">
+        @*Invoice Div*@
+        <div class="invoice-box" style="padding:30px">
+            <table>
+                <tbody id="tablebody">
+                    <tr class="top">
+                        <td colspan="4">
+                            <table>
+                                <tr>
+                                    <td class="title">
+                                        <img src="./images/logo.png" alt="Company logo" style="width: 100%; max-width: 300px" />
+                                    </td>
+                                    <td>
+                                        Invoice #: @Model.id<br />
+                                        Created: @Model.date_created<br />
+                                        @if (Model.date_issued != null)
+                                        {
+                                            <text>Date Issued: @Model.date_issued</text>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr class="information">
+                        <td colspan="4">
+                            <table>
+                                <tr>
+                                    <td>
+                                        Sky Hotels, Inc.<br />
+                                        12345 William Nicol Drive<br />
+                                        Brynston,Johannesburg 5432
+                                    </td>
+
+                                    <td>
+                                        Bill To: <br />
+                                        @Model.fname<br />
+                                        @Model.lname<br />
+                                        @Model.email
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr class="heading">
+                        <td colspan="3">Payment Method</td>
+                        <td>Check #</td>
+                    </tr>
+                    <tr class="details">
+                        <td colspan="3">Check</td>
+                        <td>@Model.id</td>
+                    </tr>
+                    <tr class="heading">
+                        <td>Item</td>
+                        <td>Quantity</td>
+                        <td>Price</td>
+                        <td>Total</td>
+                    </tr>
+                    @{
+                        var total = 0;
+
+                        foreach (var charge in Model.charges)
+                        {
+                            <tr>
+                                <td> @charge.item </td>
+                                <td> @charge.quantity </td>
+                                <td> @charge.charge </td>
+                                <td> @(charge.quantity * charge.charge)</td>
+                            </tr>
+                            total += charge.quantity * charge.charge;
+                        }
+                    }
+
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr class="total">
+                        <td></td>
+                        <td></td>
+                        <td>Total:</td>
+                        <td>@total</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+                        //loadCharges();
+                    });
+
+
+    function addCharge() {
+        var update = {
+            item: $("#edtItem").val(),
+            quantity: $("#edtQuantity").val(),
+            charge: $("#edtCharge").val()
+        };
+
+        $.post("/Invoice/addCharge/"+@Model.id, update)
+            .done(function (result) {
+                window.location.reload();;
+            });
+    }
+
+    function loadCharges() {
+        $.getJSON("/Invoice/getCharges/" +@Model.id, function (response) {
+            console.log(response);
+            var total = 0;
+
+
+            $.map(response, function (charge) {
+                var newROWItem = document.createElement("TR");
+                newROWItem.classList.add("item");
+                total += (charge.quantity) * (charge.charge);
+
+                var tabledata1 = document.createElement("TD");
+                var textnode1 = document.createTextNode(charge.item);
+                tabledata1.appendChild(textnode1);
+                newROWItem.appendChild(tabledata1);
+
+                var tabledata2 = document.createElement("TD");
+                var textnode2 = document.createTextNode(charge.quantity);
+                tabledata2.appendChild(textnode2);
+                newROWItem.appendChild(tabledata2);
+
+                var tabledata3 = document.createElement("TD");
+                var textnode3 = document.createTextNode("R"+charge.charge);
+                tabledata3.appendChild(textnode3);
+                newROWItem.appendChild(tabledata3);
+
+                var tabledata4 = document.createElement("TD");
+                var textnode4 = document.createTextNode("R"+(charge.quantity) * (charge.charge));
+                tabledata4.appendChild(textnode4);
+                newROWItem.appendChild(tabledata4);
+
+                var tableBody = document.getElementById("tablebody");
+                tableBody.insertBefore(newROWItem, tableBody.childNodes[tableBody.childNodes.length-7]);
+            });
+            $("#invoiceTotal").append("R" + total);
+        });
+    }
+
+    function loadDetails() {
+        window.location.assign("https://localhost:44395/Reservation/Details/" +@Model.res_id);
+    }
+    </script>
+
+</body>
+</html>
+

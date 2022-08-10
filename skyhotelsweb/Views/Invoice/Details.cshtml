@@ -1,0 +1,200 @@
+﻿@using skyhotelsweb.Models
+@model Invoice
+@{
+    ViewBag.Title = "Invoice Details";
+    TempData.Keep();
+}
+<div class="container">
+    <h2>Invoice @TempData["accesslevel"]</h2>
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-2">
+            <div class="row" style="justify-content:center;height:100%">
+                <div class=" card text-white bg-primary" style="padding:10px;height:inherit">
+                    <div class="card-header" onclick="loadDetails()" style="cursor:pointer">
+                        <span>&#10094;</span> Back
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-10">
+            <div class="row" style="justify-content:center;height:100%">
+                @*Invoice Div*@
+                <div class="invoice-box" style="padding:30px">
+                    <table>
+                        <tbody id="tablebody">
+                            <tr class="top">
+                                <td colspan="4">
+                                    <table>
+                                        <tr>
+                                            <td class="title">
+                                                <img src="./images/logo.png" alt="Company logo" style="width: 100%; max-width: 300px" />
+                                            </td>
+                                            <td>
+                                                Invoice #: @Model.id<br />
+                                                Created: @Model.date_created<br />
+                                                @if (Model.date_issued != null)
+                                                {
+                                                    <text>Date Issued: @Model.date_issued</text>
+                                                }
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr class="information">
+                                <td colspan="4">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                Sky Hotels, Inc.<br />
+                                                12345 William Nicol Drive<br />
+                                                Brynston,Johannesburg 5432
+                                            </td>
+
+                                            <td>
+                                                Bill To: <br />
+                                                @Model.fname<br />
+                                                @Model.lname<br />
+                                                @Model.email
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr class="heading">
+                                <td colspan="3">Payment Method</td>
+                                <td>Check #</td>
+                            </tr>
+                            <tr class="details">
+                                <td colspan="3">Check</td>
+                                <td>@Model.id</td>
+                            </tr>
+                            <tr class="heading">
+                                <td>Item</td>
+                                <td>Quantity</td>
+                                <td>Price</td>
+                                <td>Total</td>
+                            </tr>
+                            @if(Model.date_issued == null){
+                            <tr class="item last" id="editRow">
+                                <td><input type="text" id="edtItem" placeholder="Item" /></td>
+                                <td><input type="number" id="edtQuantity" placeholder="Quantity" /></td>
+                                <td><input type="number" id="edtCharge" placeholder="Price" /></td>
+                                <td><input type="button" class="btn btn-sm btn-success" value="charge item" style="float:right" onclick="addCharge()" /></td>
+                            </tr>
+                            }
+                            <tr><td colspan="4"></td></tr>
+                            <tr><td colspan="4"></td></tr>
+                            <tr class="total">
+                                <td></td>
+                                <td></td>
+                                <td>Total:</td>
+                                <td id="invoiceTotal"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                    <div style="padding:10px">
+                        @if(Model.date_issued == null){
+                        <button class="btn btn-success" style="float:right" onclick="issueInvoice()">Issue Invoice</button>
+                        }
+
+                        <button class="btn btn-warning" style="float:right" onclick="openinvoiceHTML()">open Invoice HTML</button>
+                        <button class="btn btn-sm btn-info" style="float:left" onclick="openPDF()">view pdf</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var navLink = document.getElementById("reservationNavLink");
+        navLink.classList.add("active");
+        loadCharges();
+    });
+
+    function openPDF() {
+        $.getJSON("/Invoice/savePDF/" +@Model.res_id+"/"+@Model.id, function (response) {
+            console.log("response reached");
+            console.log(response);
+        }).done(function () {
+            window.open("https://localhost:44395/Invoice/invoiceHTML/"+@Model.res_id+"/"+@Model.id,'_blank');
+        });
+    }
+
+    function issueInvoice() {
+        var update = {
+            status: "issued",
+            date_issued: "today"
+        };
+
+        $.post("/Invoice/updateInvoice/"+@Model.id, update)
+            .done(function (result) {
+                window.location.reload();
+            });
+    }
+
+    function addCharge() {
+        var update = {
+            item: $("#edtItem").val(),
+            quantity: $("#edtQuantity").val(),
+            charge: $("#edtCharge").val()
+        };
+
+        $.post("/Invoice/addCharge/"+@Model.id, update)
+            .done(function (result) {
+                window.location.reload();
+            });
+    }
+
+    function loadCharges() {
+        console.log("before request");
+        $.getJSON("/Invoice/getCharges/" +@Model.id, function (response) {
+            console.log("response reached");
+            console.log(response);
+            var total = 0;
+
+            $.map(response, function (charge) {
+                var newROWItem = document.createElement("TR");
+                newROWItem.classList.add("item");
+                total += (charge.quantity) * (charge.charge);
+
+                var tabledata1 = document.createElement("TD");
+                var textnode1 = document.createTextNode(charge.item);
+                tabledata1.appendChild(textnode1);
+                newROWItem.appendChild(tabledata1);
+
+                var tabledata2 = document.createElement("TD");
+                var textnode2 = document.createTextNode(charge.quantity);
+                tabledata2.appendChild(textnode2);
+                newROWItem.appendChild(tabledata2);
+
+                var tabledata3 = document.createElement("TD");
+                var textnode3 = document.createTextNode("R"+charge.charge);
+                tabledata3.appendChild(textnode3);
+                newROWItem.appendChild(tabledata3);
+
+                var tabledata4 = document.createElement("TD");
+                var textnode4 = document.createTextNode("R"+(charge.quantity) * (charge.charge));
+                tabledata4.appendChild(textnode4);
+                newROWItem.appendChild(tabledata4);
+
+                var tableBody = document.getElementById("tablebody");
+                tableBody.insertBefore(newROWItem, tableBody.childNodes[tableBody.childNodes.length-9]);
+            });
+            $("#invoiceTotal").append("R" + total);
+        });
+    }
+
+    function loadDetails() {
+        window.location.assign("https://localhost:44395/Reservation/Details/"+@Model.res_id);
+    }
+
+    function openinvoiceHTML() {
+        window.location.assign("https://localhost:44395/Invoice/invoiceHTML/"+@Model.res_id+"/"+@Model.id);
+    }
+</script>

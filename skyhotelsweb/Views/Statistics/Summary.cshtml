@@ -1,0 +1,237 @@
+﻿
+@{
+    ViewBag.Title = "Summary";
+    TempData.Keep();
+}
+
+    <h2>Summary</h2>
+<div class=" row">
+    <div class="col-lg-2 col-md-2 col-sm-2">
+        <div class="card text-white bg-primary" style="height:100%;padding:10px">
+            <div class="row">
+                <h5 style="color:white">Overview</h5>
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary" onclick="roomStatistisc()">Rooms</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-10 col-md-10 col-sm-10">
+        <div class="row">
+            <div class="col-4">
+                <div>
+                    <canvas id="ReservationOverview" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+            <div class="col-4">
+                <div>
+                    <canvas id="RoomOverview" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+            <div class="col-4">
+                <div>
+                    <canvas id="Cancellations" style="width:100%;height:300px">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="roomDiv" style="justify-content:center">
+            <div class="col-8">
+                <div id="carouselPassive" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner" id="carouselInner">
+                        @*GRAPHS GO IN HERE*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/chart.min.js"></script>
+<script type="text/javascript">
+    let roomIds = [];
+    let roomnames = [];
+    $(document).ready(function () {
+            //var navLink = document.getElementById("reportNavLink");
+           // navLink.classList.add("active");
+        $.getJSON("/Statistics/roomOverview", function (stats) {
+            var labels = [];
+            var data = [];
+            $.map(stats, function (stat) {
+                labels.push(stat.name);
+                roomnames.push(stat.name)
+                data.push(stat.reservations);
+                roomIds.push(stat.id);
+            });
+            roomTotals(data, labels);
+
+            for (let i = 1; i <= 10; i++) {
+                let active = ""
+                if (i == 1) {
+                    active = "active";
+                } else {
+                    active = "";
+                }
+                $.getJSON("/Statistics/roomPerformance/" + i, function (stats) {
+                    var labels = [];
+                    var completed = [];
+                    var cancelled = [];
+                    $.map(stats, function (stat) {
+                        labels.push(MONTHS[stat.month - 1]);
+                        completed.push(stat.completed);
+                        cancelled.push(stat.cancelled);
+                    });
+                    let id = "roomstat" + i;
+
+                    console.log("inside loop : " + i + "\n active: " + active);
+                    $("#carouselInner").append("<div class='carousel-item " + active + "'><div class='row'><h3>" + roomnames[i] + "</h3></div><canvas id='" + id + "' style='width:600px;height:300px'></canvas></div>");
+                    roomstats(completed, cancelled, labels, id);
+                });
+            }
+        });
+
+        $.getJSON("/Statistics/statsOverview", function (stats) {
+            var labels = [];
+            var data = [];
+            $.map(stats, function (stat) {
+                labels.push(MONTHS[stat.month - 1]);
+                data.push(stat.total_reservations);
+            });
+            resData(labels, data);
+        });
+
+
+        $.getJSON("/Statistics/cancellations", function (stats) {
+            var labels = [];
+            var data = [];
+            $.map(stats, function (stat) {
+                labels.push(stat.name);
+                data.push(stat.cancellations);
+            });
+            cancellations(data, labels);
+        });
+    });
+
+    const MONTHS = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
+
+    const COLORS = [
+        '#2c3e50',
+        '#95a5a6',
+        '#18bc9c',
+        '#3498db',
+        '#f39c12',
+        '#e74c3c',
+        '#2c3e50',
+        '#6610f2',
+        '#6f42c1',
+        '#e83e8c',
+        '#e74c3c',
+        '#fd7e14',
+        '#f39c12',
+        '#18bc9c',
+        '#20c997',
+        '#3498db'
+    ];
+
+    function resData(labels, data) {
+        var ctx = document.getElementById("ReservationOverview").getContext('2d');
+        var resBar = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '# of Reservations',
+                    data: data,
+                    backgroundColor: ['#2c3e50'],
+                    borderColor: ['#2c3e50'],
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+
+    function cancellations(data, labels) {
+        var ctx = document.getElementById("Cancellations").getContext('2d');
+        var cancelChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cancellations',
+                    data: data,
+                    backgroundColor: COLORS,
+                    borderWidth: 1,
+                    hoverOffset: 5
+                }]
+            }
+        });
+    }
+
+    function roomstats(completed, cancelled, labels, id) {
+        let ctx = document.getElementById(id).getContext('2d');
+        let roomstats = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'completed reservations',
+                    data: completed,
+                    backgroundColor: COLORS[2],
+                    borderColor: COLORS[2],
+                    borderWidth: 2,
+                },
+                {
+                    label: 'cancelled reservations',
+                    data: cancelled,
+                    backgroundColor: COLORS[5],
+                    borderColor: COLORS[5],
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                tension: 0.3,
+                scales: {
+                    y: {
+                        suggestedMax :10
+                    }
+                }
+            }
+        });
+    }
+
+    function roomTotals(data, labels) {
+        var ctx = document.getElementById("RoomOverview").getContext('2d');
+        var cancelChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'reservations',
+                    data: data,
+                    backgroundColor: COLORS,
+                    borderWidth: 1,
+                }]
+            }
+        });
+    }
+
+    function roomStatistisc() {
+        window.location.assign("https://localhost:44395/Statistics/Rooms/");
+    }
+
+</script>

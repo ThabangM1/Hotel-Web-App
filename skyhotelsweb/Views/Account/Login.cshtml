@@ -1,0 +1,91 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+}
+<div class=" container">
+    <div class=" page-header">
+        <h2>Login</h2>
+    </div>
+    <div class="row" style="height:80vh">
+        <div class=" row" style="justify-content:center">
+            <div class="col-md-6 " style="padding:30px">
+                <div class="card bg-light divcenter" style="padding:30px;height:50vh">
+                    <div>
+                        <div class="input-group">
+                            <span class="input-group-text input-group-prepend">Staff Email</span>
+                            <input id="txtEmail" type="text" class="form-control" onfocusout="validate()" />
+                            <div class="invalid-feedback" id="emailerrmsg" style="display:none">Enter a valid email adress</div>
+                            <div class="invalid-feedback" id="invalidUser" style="display:none">User Not Found</div>
+                        </div>
+
+                        <br />
+                        <div class=" input-group">
+                            <span class="input-group-text input-group-prepend">Password</span>
+                            <input id="txtPass" type="password" class=" form-control" onfocusout="validate()" />
+                            <div class="invalid-feedback" id="invalidPass" style="display:none">Incorrect username and Password combination</div>
+                            </div>
+
+                            <br />
+                            <div class="text-center panel-body">
+                                <input id="btnLogin" type="submit" class="btn btn-primary" onclick="verify()" value="LOG IN" />
+                            </div>
+
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery-3.4.1.min.js"></script>
+<script src="~/Scripts/sha256.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+    });
+    function validate() {
+        var mailformat = /^\w+([\.-]?\w+)*@@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        var txtemail = $("#txtEmail").val();
+        var emailerror = document.getElementById('emailerrmsg');
+        if (txtemail.match(mailformat)) {
+            var noUser = document.getElementById('invalidUser');
+            noUser.style.display = 'none';
+            emailerror.style.display = 'none';
+            return true
+        } else {
+            emailerror.style.display = 'inline';
+            return false;
+        }
+    }
+
+    function verify() {
+
+        if (validate()) {
+            console.log('verify reached');
+            var staff = {
+                email: $("#txtEmail").val(),
+                password: sha256($("#txtPass").val())
+
+            };
+            console.log("h password: "+staff.password);
+
+            $.getJSON("/Account/Verify", staff, function (staffmember) {
+                var noUser = document.getElementById('invalidUser');
+                if (staffmember.length == 0) {
+                    noUser.style.display = 'inline';
+                } else {
+                    noUser.style.display = 'none';
+                    console.log("r password: " + staffmember[0].password);
+                    if (staffmember[0].password == staff.password) {
+                        window.location.assign("https://localhost:44395/Home/Index/");
+                    } else {
+                        var submiterr = document.getElementById('invalidPass');
+                        submiterr.style.display = 'inline';
+                    }
+                }
+
+                
+            });
+        }
+    }
+
+</script>
